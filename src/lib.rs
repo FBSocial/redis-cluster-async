@@ -118,6 +118,13 @@ impl Client {
         self
     }
 
+    pub fn set_password(&mut self, password: &str) -> &mut Self {
+        for mut v in self.initial_nodes.iter_mut() {
+            v.passwd = Some(password.to_string())
+        }
+        self
+    }
+
     /// Open and get a Redis cluster connection.
     ///
     /// # Errors
