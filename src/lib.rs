@@ -231,6 +231,15 @@ impl<C> CmdArg<C> {
                     // TODO need to handle sending to all masters
                     None
                 }
+                Some(b"XREAD") | Some(b"XREADGROUP") => {
+                    let streams_position = cmd.args_iter().position(|arg| match arg {
+                        redis::Arg::Simple(arg) => arg == b"STREAMS",
+                        _ => false,
+                    })?;
+                    get_cmd_arg(cmd, streams_position+1).map(|key| {
+                        slot_for_key(key)
+                    })
+                }
                 _ => get_cmd_arg(cmd, 1).map(|key| slot_for_key(key)),
             }
         }
@@ -249,6 +258,7 @@ impl<C> CmdArg<C> {
         }
     }
 }
+
 
 enum Response {
     Single(Value),
