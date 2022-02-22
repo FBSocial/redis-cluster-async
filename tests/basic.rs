@@ -349,3 +349,31 @@ fn test_failover(env: &mut FailoverEnv, requests: i32, value: i32) {
         .unwrap_or_else(|err| panic!("{}", err));
     assert_eq!(completed.get(), requests, "Some requests never completed!");
 }
+
+#[tokio::test]
+async fn test_xgroup_stream() {
+    let nodes = vec!["redis://10.100.1.36:6380/", "redis://10.100.1.36:6381/", "redis://10.100.1.36:6382/"];
+
+    let mut client = Client::open(nodes).unwrap();
+    client.set_password("idreamsky@123");
+    let mut connnection = client.get_connection().map_err(|err|{
+        println!("get connection failed with err={}", err);
+    }).await.unwrap();
+
+    //let bot = Bot {bot_id:336471730073632768, username: Some("test".to_string()) };
+    let bot_id = "336471730073632768";
+    let stream = format!("{}:{}", "channel:bot", bot_id);
+    let consumer = format!("{}:{}", "comsumer:bot", bot_id);
+
+    let result: Result<(), _> = connnection.xgroup_create_mkstream(stream, consumer, "$").await;
+    match result {
+        Err(err) => {
+            println!("failed to execute with err={}", err);
+        }
+        Ok(_) => {
+            println!("success to execute");
+        }
+    }
+
+    println!("stoped")
+}

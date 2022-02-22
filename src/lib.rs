@@ -240,6 +240,7 @@ impl<C> CmdArg<C> {
                         slot_for_key(key)
                     })
                 }
+                Some(b"XGROUP") | Some(b"XINFO") => get_cmd_arg(cmd, 2).map(|key| slot_for_key(key)),
                 _ => get_cmd_arg(cmd, 1).map(|key| slot_for_key(key)),
             }
         }
